@@ -50,7 +50,7 @@
 
 #define Object          uint64_t
 #define CACHE_ALIGN     __attribute__((aligned(64)))
-#define EMPTY (uint64_t)-1
+#define EMPTY ((uint64_t)-1)
 #define MAX_PATIENCE 1000
 
 // Definition: RING_STATS
@@ -98,6 +98,8 @@ inline void enqueue(Object arg, int pid, ELCRQ* q);
 inline Object dequeue(int pid, ELCRQ* q);
 inline void spinEnqueue(Object arg, int pid, ELCRQ *q);
 inline Object spinDequeue(int pid, ELCRQ* q);
+inline void enqueueOnce(Object arg, int pid, ELCRQ *q);
+inline Object dequeueOnce(int pid, ELCRQ* q);
 
 //RingQueue *head;
 //RingQueue *tail;
@@ -333,4 +335,12 @@ inline Object spinDequeue(int pid, ELCRQ* q) {
     int patience = 0;
     while (likely((element = deq(pid, q->head)) == EMPTY && patience++ < MAX_PATIENCE));
     return element;
+}
+
+inline void enqueueOnce(Object arg, int pid, ELCRQ *q) {
+    enq(arg, pid, q->tail);
+}
+
+inline Object dequeueOnce(int pid, ELCRQ* q) {
+    return deq(pid, q->head);
 }
